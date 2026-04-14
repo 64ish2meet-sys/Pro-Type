@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Pro Type - Elite English Typing Practice with Infinite Flow and Professional Analytics.">
+    <title>Pro Type | Master English Typing</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;700&family=JetBrains+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #323437;
+            --main: #e2b714;
+            --text: #d1d0c5;
+            --sub: #646669;
+            --err: #ca4754;
+            --side-w: 280px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        [data-theme="light"] {
+            --bg: #ffffff;
+            --main: #007bff;
+            --text: #2d2d2d;
+            --sub: #999999;
+            --err: #df3545;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Lexend Deca', sans-serif;
+            display: flex;
+            min-height: 100vh;
+            transition: background var(--transition);
+            overflow-x: hidden;
+        }
+
+        /* --- SIDEBAR NAVIGATION --- */
+        aside {
+            width: var(--side-w);
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 1.5rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            position: fixed;
+            height: 100vh;
+        }
+
+        .logo-area {
+            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--main);
+        }
+
+        .nav-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-group h3 {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: var(--sub);
+            letter-spacing: 2px;
+            margin-bottom: 0.8rem;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 8px 0;
+            color: var(--sub);
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--main);
+            padding-left: 5px;
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        main {
+            margin-left: var(--side-w);
+            flex-grow: 1;
+            padding: 3rem 8%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.4s ease;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- TYPING ENGINE UI --- */
+        .stats-bar {
+            display: flex;
+            gap: 40px;
+            font-family: 'JetBrains Mono';
+            font-size: 1.8rem;
+            color: var(--main);
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .difficulty-picker {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .diff-btn {
+            background: rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--sub);
+            color: var(--sub);
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+
+        .diff-btn.active {
+            border-color: var(--main);
+            color: var(--main);
+            background: rgba(226, 183, 20, 0.05);
+        }
+
+        #words-container {
+            position: relative;
+            font-size: 2rem;
+            line-height: 1.5;
+            height: 125px;
+            overflow: hidden;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            user-select: none;
+        }
+
+        .word {
+            color: var(--sub);
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .letter.correct {
+            color: var(--text);
+        }
+
+        .letter.incorrect {
+            color: var(--err);
+            border-bottom: 2px solid var(--err);
+        }
+
+        #caret {
+            position: absolute;
+            width: 2px;
+            height: 1.2em;
+            background: var(--main);
+            animation: blink 1s infinite;
+            transition: left 0.1s linear, top 0.1s linear;
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* --- RESULTS --- */
+        #result-view {
+            text-align: left;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 2rem;
+        }
+
+        .res-box {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            border-radius: 12px;
+        }
+
+        .res-label {
+            color: var(--sub);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .res-val {
+            color: var(--main);
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        /* --- CONTENT PAGES --- */
+        .content-block {
+            line-height: 1.8;
+        }
+
+        .content-block h1 {
+            color: var(--main);
+            margin-bottom: 1.5rem;
+            font-size: 2.5rem;
+        }
+
+        .highlight-box {
+            border-left: 4px solid var(--main);
+            padding: 1rem 2rem;
+            background: rgba(226, 183, 20, 0.05);
+            margin: 2rem 0;
+            font-weight: bold;
+            color: var(--main);
+        }
+
+        #hidden-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @media (max-width: 900px) {
+            aside {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+
+            body {
+                flex-direction: column;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <aside>
+        <div class="logo-area" onclick="showPage('home')">
+            <div class="logo">Pro Type</div>
+            <div style="font-size: 0.6rem; color: var(--sub); letter-spacing: 1px;">TYPE FASTER. TYPE SMARTER.</div>
+        </div>
+
+        <div class="nav-group">
+            <h3>Timed Tests</h3>
+            <a class="nav-link active" onclick="setMode('time', 60)">1 Minute Test</a>
+            <a class="nav-link" onclick="setMode('time', 300)">5 Minute Test</a>
+            <a class="nav-link" onclick="setMode('time', 900)">15 Minute Test</a>
+        </div>
+
+        <div class="nav-group">
+            <h3>Endless Modes</h3>
+            <a class="nav-link" onclick="setMode('infinite', 3600)">1 Hour Unlimited</a>
+            <a class="nav-link" onclick="setMode('practice', 0)">Unlimited Practice</a>
+        </div>
+
+        <div class="nav-group">
+            <h3>Information</h3>
+            <a class="nav-link" onclick="showPage('about')">About Us</a>
+            <a class="nav-link" onclick="showPage('contact')">Contact Us</a>
+            <a class="nav-link" onclick="showPage('privacy')">Privacy Policy</a>
+            <a class="nav-link" onclick="showPage('terms')">Terms & Conditions</a>
+        </div>
+    </aside>
+
+    <main>
+        <div id="home" class="page active">
+            <div class="difficulty-picker">
+                <button class="diff-btn active" onclick="setDifficulty('easy')">Easy</button>
+                <button class="diff-btn" onclick="setDifficulty('medium')">Medium</button>
+                <button class="diff-btn" onclick="setDifficulty('hard')">Hard</button>
+            </div>
+
+            <div id="test-view">
+                <div class="stats-bar">
+                    <div id="timer-display">60</div>
+                    <div style="font-size: 1rem; color: var(--sub);">wpm: <span id="live-wpm"
+                            style="color:var(--main)">0</span></div>
+                </div>
+
+                <div id="words-container">
+                    <div id="caret"></div>
+                </div>
+            </div>
+
+            <div id="result-view" style="display:none;">
+                <h1 style="color: var(--sub)">test results</h1>
+                <div class="results-grid">
+                    <div class="res-box">
+                        <div class="res-label">wpm</div>
+                        <div class="res-val" id="res-wpm">0</div>
+                    </div>
+                    <div class="res-box">
+                        <div class="res-label">accuracy</div>
+                        <div class="res-val" id="res-acc">0%</div>
+                    </div>
+                    <div class="res-box">
+                        <div class="res-label">chars</div>
+                        <div class="res-val" id="res-chars">0</div>
+                    </div>
+                    <div class="res-box">
+                        <div class="res-label">errors</div>
+                        <div class="res-val" id="res-err">0</div>
+                    </div>
+                </div>
+                <button class="diff-btn" style="margin-top: 3rem; padding: 12px 30px; font-size: 1rem;"
+                    onclick="resetTest()">Restart Test</button>
+            </div>
+        </div>
+
+        <div id="about" class="page content-block">
+            <h1>About Pro Type</h1>
+            <p><strong>Pro Type</strong> is a fast and easy online English typing test website designed to help users
+                improve their typing speed, accuracy, and overall keyboard skills.</p>
+            <p>Practice with real-time English typing tests, track your WPM (Words Per Minute), check accuracy, and
+                boost your typing performance with a clean and user-friendly interface.</p>
+            <div class="highlight-box">Master English Typing with Speed & Accuracy. Boost Your WPM Every Day.</div>
+            <p>Whether you are a student, job seeker, or professional, Pro Type provides the perfect platform for daily
+                practice. Type Faster. Type Smarter.</p>
+        </div>
+
+        <div id="contact" class="page content-block">
+            <h1>Contact Us</h1>
+            <p>Reach out for support, feedback, or business inquiries.</p>
+            <div style="background: rgba(0,0,0,0.1); padding: 2rem; border-radius: 12px; margin-top: 1rem;">
+                <strong>Official Support Email:</strong><br>
+                <a href="mailto:64ish2meet@gmail.com"
+                    style="color:var(--main); font-size: 1.2rem; text-decoration: none;">64ish2meet@gmail.com</a>
+            </div>
+        </div>
+
+        <div id="privacy" class="page content-block">
+            <h1>Privacy Policy</h1>
+            <p>We respect your privacy. Pro Type tracks your typing speed and accuracy locally to provide performance
+                reports. We do not store or sell your personal typing data.</p>
+            <p>Cookies are used to improve user experience and support our analytics/ad services (Google AdSense ready).
+            </p>
+        </div>
+
+        <div id="terms" class="page content-block">
+            <h1>Terms & Conditions</h1>
+            <p>By using Pro Type, you agree to use the platform for educational and self-improvement purposes. You agree
+                not to misuse the infinite text generation system for scraping or automated data collection.</p>
+        </div>
+
+        <input type="text" id="hidden-input" autofocus autocomplete="off">
+    </main>
+
+    <script>
+        const vocab = {
+            easy: "the be of and a to in he have it that for they with as not on she at by this we you do but from or which one would all will there say who make when can more if no man out other so what up into year".split(" "),
+            medium: "professional development technology environment knowledge experience surface language standard structure analysis process dynamic improve system focus ability performance quality".split(" "),
+            hard: "synchronicity juxtaposition quintessential ephemeral idiosyncratic aesthetic nomenclature philanthropy ubiquitous conscientious metamorphosis paradigm".split(" ")
+        };
+
+        const container = document.getElementById('words-container');
+        const input = document.getElementById('hidden-input');
+        const caret = document.getElementById('caret');
+        const timerEl = document.getElementById('timer-display');
+
+        let wordsDOM = [];
+        let wordIdx = 0, charIdx = 0;
+        let timeLeft = 60, currentDuration = 60, currentMode = 'time', difficulty = 'easy';
+        let timerActive = false, interval = null;
+        let stats = { chars: 0, errors: 0, startTime: null };
+
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            if (id === 'home') resetTest();
+        }
+
+        function setMode(mode, duration) {
+            currentMode = mode;
+            currentDuration = duration;
+            timeLeft = duration;
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            event.target.classList.add('active');
+            showPage('home');
+        }
+
+        function setDifficulty(diff) {
+            difficulty = diff;
+            document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            resetTest();
+        }
+
+        function appendWords(count) {
+            const list = vocab[difficulty];
+            for (let i = 0; i < count; i++) {
+                const w = list[Math.floor(Math.random() * list.length)];
+                const wordDiv = document.createElement('div');
+                wordDiv.className = 'word';
+                wordDiv.id = `w-${wordsDOM.length}`;
+                w.split('').forEach(l => {
+                    const s = document.createElement('span');
+                    s.className = 'letter'; s.innerText = l;
+                    wordDiv.appendChild(s);
+                });
+                container.appendChild(wordDiv);
+                wordsDOM.push(wordDiv);
+            }
+        }
+
+        function updateCaret() {
+            const curWord = wordsDOM[wordIdx];
+            if (!curWord) return;
+            const letters = curWord.querySelectorAll('.letter');
+            const target = letters[charIdx] || curWord;
+            const rect = target.getBoundingClientRect();
+            const contRect = container.getBoundingClientRect();
+
+            let left = rect.left - contRect.left;
+            if (charIdx === letters.length) left += rect.width;
+
+            caret.style.left = left + 'px';
+            caret.style.top = (rect.top - contRect.top + 5) + 'px';
+
+            // Infinite scroll logic
+            if (rect.top - contRect.top > 60) container.scrollTop += 50;
+            // Refill logic
+            if (wordIdx > wordsDOM.length - 20) appendWords(30);
+        }
+
+        input.addEventListener('input', (e) => {
+            if (!timerActive && currentMode !== 'practice') {
+                stats.startTime = Date.now();
+                startTimer();
+                timerActive = true;
+            }
+
+            const curWord = wordsDOM[wordIdx];
+            const letters = curWord.querySelectorAll('.letter');
+            const val = input.value;
+
+            if (val.endsWith(' ')) {
+                wordIdx++; charIdx = 0;
+                input.value = '';
+            } else if (e.inputType === 'deleteContentBackward') {
+                if (charIdx > 0) {
+                    charIdx--;
+                    letters[charIdx].classList.remove('correct', 'incorrect');
+                }
+            } else {
+                const char = val[val.length - 1];
+                if (charIdx < letters.length) {
+                    const expected = letters[charIdx].innerText;
+                    if (char === expected) {
+                        letters[charIdx].classList.add('correct');
+                    } else {
+                        letters[charIdx].classList.add('incorrect');
+                        stats.errors++;
+                    }
+                    charIdx++;
+                    stats.chars++;
+                }
+            }
+            updateCaret();
+            updateLiveStats();
+        });
+
+        function startTimer() {
+            interval = setInterval(() => {
+                if (currentMode !== 'practice') {
+                    timeLeft--;
+                    timerEl.innerText = timeLeft;
+                    if (timeLeft <= 0) endTest();
+                }
+            }, 1000);
+        }
+
+        function updateLiveStats() {
+            const elapsed = (Date.now() - stats.startTime) / 60000 || 1 / 60;
+            const wpm = Math.round((stats.chars / 5) / elapsed);
+            document.getElementById('live-wpm').innerText = wpm > 0 ? wpm : 0;
+        }
+
+        function endTest() {
+            clearInterval(interval);
+            timerActive = false;
+            document.getElementById('test-view').style.display = 'none';
+            document.getElementById('result-view').style.display = 'block';
+
+            const elapsed = currentDuration / 60 || 1;
+            const wpm = Math.round((stats.chars / 5) / elapsed);
+            const acc = Math.round(((stats.chars - stats.errors) / stats.chars) * 100) || 0;
+
+            document.getElementById('res-wpm').innerText = wpm;
+            document.getElementById('res-acc').innerText = acc + '%';
+            document.getElementById('res-chars').innerText = stats.chars;
+            document.getElementById('res-err').innerText = stats.errors;
+        }
+
+        function resetTest() {
+            clearInterval(interval);
+            timerActive = false;
+            wordIdx = 0; charIdx = 0; wordsDOM = [];
+            stats = { chars: 0, errors: 0, startTime: null };
+            timeLeft = currentDuration;
+            input.value = '';
+
+            document.getElementById('test-view').style.display = 'block';
+            document.getElementById('result-view').style.display = 'none';
+            container.innerHTML = '<div id="caret"></div>';
+            timerEl.innerText = (currentMode === 'practice') ? '∞' : timeLeft;
+            document.getElementById('live-wpm').innerText = '0';
+
+            appendWords(50);
+            updateCaret();
+            input.focus();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && document.getElementById('result-view').style.display === 'block') resetTest();
+            input.focus();
+        });
+
+        document.addEventListener('click', () => input.focus());
+        window.onload = resetTest;
+    </script>
+</body>
+
+</html>
